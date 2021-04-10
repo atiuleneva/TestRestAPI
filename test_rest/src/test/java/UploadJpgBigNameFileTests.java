@@ -46,27 +46,27 @@ public class UploadJpgBigNameFileTests extends BaseTest {
 
     @Test
     @Order(2)
-    void TestImageIdFormat() {
+    void ImageIdFormatTest() {
         Assertions.assertTrue(
                 Pattern.compile("^[a-zA-Z0-9]{7}$").matcher(uploadedImageId).matches());
     }
 
     @Test
     @Order(3)
-    void TestImageDeleteHashFormat() {
+    void ImageDeleteHashFormatTest() {
         Assertions.assertTrue(
                 Pattern.compile("^[a-zA-Z0-9]{15}$").matcher(uploadedImageDeleteHash).matches());
     }
 
     @Test
     @Order(4)
-    void TestImageName() {
+    void ImageNameTest() {
         Assertions.assertEquals(imgName, uploadedImageName);
     }
 
     @Test
     @Order(5)
-    void GetTestImage(){
+    void GetImageTest(){
         Response response =
                 given()
                         .headers(headers)

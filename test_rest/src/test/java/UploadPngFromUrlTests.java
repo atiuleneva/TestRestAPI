@@ -38,14 +38,14 @@ public class UploadPngFromUrlTests extends BaseTest {
 
     @Test
     @Order(2)
-    void TestImageIdFormat() {
+    void ImageIdFormatTest() {
         Assertions.assertTrue(
                 Pattern.compile("^[a-zA-Z0-9]{7}$").matcher(uploadedImageId).matches());
     }
 
     @Test
     @Order(3)
-    void TestImageDeleteHashFormat() {
+    void ImageDeleteHashFormatTest() {
         Assertions.assertTrue(
                 Pattern.compile("^[a-zA-Z0-9]{15}$").matcher(uploadedImageDeleteHash).matches());
     }
@@ -53,7 +53,7 @@ public class UploadPngFromUrlTests extends BaseTest {
 
     @Test
     @Order(4)
-    void GetTestImage(){
+    void GetImageTest(){
         Response response =
                 given()
                         .headers(headers)
