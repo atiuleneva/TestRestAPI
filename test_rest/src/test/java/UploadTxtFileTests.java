@@ -1,10 +1,11 @@
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import org.atiuleneva.dto.ImageDataResponse;
 import org.atiuleneva.utils.Endpoints;
 import org.atiuleneva.utils.ImagePaths;
-import org.atiuleneva.utils.RegExpSet;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 
 import static io.restassured.RestAssured.given;

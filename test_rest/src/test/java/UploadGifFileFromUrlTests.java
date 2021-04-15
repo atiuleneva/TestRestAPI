@@ -1,4 +1,3 @@
-import io.restassured.response.Response;
 import org.atiuleneva.dto.ImageDataResponse;
 import org.atiuleneva.utils.*;
 import org.junit.jupiter.api.*;

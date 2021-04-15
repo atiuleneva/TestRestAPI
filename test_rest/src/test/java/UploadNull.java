@@ -1,7 +1,8 @@
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.atiuleneva.utils.Endpoints;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 

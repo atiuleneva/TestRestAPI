@@ -1,10 +1,9 @@
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import org.atiuleneva.dto.ImageDataResponse;
 import org.atiuleneva.utils.*;
 import org.junit.jupiter.api.*;
+
 import java.io.File;
-import java.util.regex.Pattern;
+
 import static io.restassured.RestAssured.given;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

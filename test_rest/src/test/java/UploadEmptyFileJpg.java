@@ -1,5 +1,3 @@
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import org.atiuleneva.dto.ImageDataResponse;
 import org.atiuleneva.utils.Endpoints;
 import org.atiuleneva.utils.ImagePaths;
@@ -7,8 +5,8 @@ import org.junit.jupiter.api.*;
 
 import java.io.File;
 
-
 import static io.restassured.RestAssured.given;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UploadEmptyFileJpg extends BaseTest {
     static private int uploadEmpty;
