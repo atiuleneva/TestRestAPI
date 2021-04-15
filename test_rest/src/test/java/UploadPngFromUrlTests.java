@@ -1,12 +1,16 @@
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.atiuleneva.dto.ImageDataResponse;
+import org.atiuleneva.utils.Endpoints;
+import org.atiuleneva.utils.FileFormats;
+import org.atiuleneva.utils.ImagePaths;
+import org.atiuleneva.utils.RegExpSet;
 import org.junit.jupiter.api.*;
 import java.util.regex.Pattern;
 import static io.restassured.RestAssured.given;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UploadPngFromUrlTests extends BaseTest {
-    static final String url = "https://static.wikia.nocookie.net/rustarwars/images/d/d6/Yoda_SWSB.png";
     static private String uploadedImageId;
     static private String uploadedImageDeleteHash;
 
@@ -18,56 +22,55 @@ public class UploadPngFromUrlTests extends BaseTest {
     @Order(1)
     void UploadPngFromUrlTest(){
 
-        Response response =
+        ImageDataResponse response =
                 given()
-                        .multiPart("image", url)
-                        .header("Authorization", token)
+                        .multiPart("image", ImagePaths.IMAGE_PNG_URL)
+                        .spec(requestSpecification)
                         .when()
-                        .post("https://api.imgur.com/3/image")
+                        .post(Endpoints.POST_IMAGE_REQUEST)
                         .prettyPeek()
                         .then()
-                        .statusCode(200)
-                        .contentType(ContentType.JSON)
+                        .spec(responseSpecification)
                         .extract()
-                        .response();
+                        .body()
+                        .as(ImageDataResponse.class);
 
-        uploadedImageId = response.jsonPath().getString("data.id");
-        uploadedImageDeleteHash = response.jsonPath().getString("data.deletehash");
+        uploadedImageId = response.data.id;
+        uploadedImageDeleteHash = response.data.deletehash;
 
     }
 
     @Test
     @Order(2)
     void ImageIdFormatTest() {
-        Assertions.assertTrue(
-                Pattern.compile("^[a-zA-Z0-9]{7}$").matcher(uploadedImageId).matches());
+        Assertions.assertTrue(RegExpSet.ImageHash.matcher(uploadedImageId).matches());
     }
 
     @Test
     @Order(3)
     void ImageDeleteHashFormatTest() {
-        Assertions.assertTrue(
-                Pattern.compile("^[a-zA-Z0-9]{15}$").matcher(uploadedImageDeleteHash).matches());
+        Assertions.assertTrue(RegExpSet.ImageDeleteHash.matcher(uploadedImageDeleteHash).matches());
     }
 
 
     @Test
     @Order(4)
     void GetImageTest(){
-        Response response =
+        ImageDataResponse response =
                 given()
                         .headers(headers)
-                        .header("Authorization", token)
+                        .spec(requestSpecification)
                         .when()
-                        .get("https://api.imgur.com/3/image/{imageId}", uploadedImageId)
+                        .get(Endpoints.GET_IMAGE_REQUEST, uploadedImageId)
                         .prettyPeek()
                         .then()
-                        .statusCode(200)
+                        .spec(responseSpecification)
                         .extract()
-                        .response();
+                        .body()
+                        .as(ImageDataResponse.class);
 
-        String link = response.jsonPath().getString("data.link");
-        Assertions.assertEquals("https://i.imgur.com/" + uploadedImageId + ".jpg", link);
+        String link = response.data.link;
+        Assertions.assertEquals(Endpoints.LINK_IMAGE_URI_BASE + uploadedImageId + FileFormats.IMAGE_JPG, link);
 
     }
 
@@ -75,12 +78,12 @@ public class UploadPngFromUrlTests extends BaseTest {
     static void tearDown()  {
         given()
                 .headers(headers)
-                .header("Authorization", token)
+                .spec(requestSpecification)
                 .when()
-                .delete("https://api.imgur.com/3/image/{imageDeleteHash}", uploadedImageDeleteHash)
+                .delete(Endpoints.DELETE_IMAGE_REQUEST, uploadedImageDeleteHash)
                 .prettyPeek()
                 .then()
-                .statusCode(200);
+                .spec(responseSpecification);
     }
 
 }
