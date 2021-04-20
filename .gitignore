@@ -25,3 +25,6 @@ hs_err_pid*
 # disable traget
 test_rest/target/*
 test_rest/.allure/*
+RestAPIRetrofit/target/*
+RestAPIRetrofit/.allure/*
+RestAPIRetrofit/.idea/*
