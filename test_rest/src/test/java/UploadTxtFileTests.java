@@ -1,13 +1,16 @@
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import org.junit.jupiter.api.*;
+import org.atiuleneva.dto.ImageDataResponse;
+import org.atiuleneva.utils.Endpoints;
+import org.atiuleneva.utils.ImagePaths;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 
 import static io.restassured.RestAssured.given;
 
 public class UploadTxtFileTests extends BaseTest{
-    static final String FILE_PATH = "src/test/resources/HelloWorld.txt";
-    static private int uploadTxt;
 
     @BeforeAll
     static void beforeAllUploadTxtFileTests() {
@@ -15,21 +18,20 @@ public class UploadTxtFileTests extends BaseTest{
 
     @Test
     void UploadTxtFileTest(){
-        Response response =
+        ImageDataResponse response =
                 given()
-                        .multiPart("image", new File(FILE_PATH))
-                        .header("Authorization", token)
+                        .multiPart("image", new File(ImagePaths.FILE_TXT))
+                        .spec(requestSpecification)
                         .when()
-                        .post("https://api.imgur.com/3/image")
+                        .post(Endpoints.POST_IMAGE_REQUEST)
                         .prettyPeek()
                         .then()
-                        .statusCode(400)
-                        .contentType(ContentType.JSON)
+                        .spec(responseSpecification400)
                         .extract()
-                        .response();
+                        .body()
+                        .as(ImageDataResponse.class);
 
-        uploadTxt= response.jsonPath().getInt("data.error.code");
-
+        Assertions.assertEquals(1003, response.data.error.code);
     }
 
     @AfterAll

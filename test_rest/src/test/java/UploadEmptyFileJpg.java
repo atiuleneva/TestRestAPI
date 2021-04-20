@@ -1,14 +1,14 @@
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import org.atiuleneva.dto.ImageDataResponse;
+import org.atiuleneva.utils.Endpoints;
+import org.atiuleneva.utils.ImagePaths;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
 
-
 import static io.restassured.RestAssured.given;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UploadEmptyFileJpg extends BaseTest {
-    static final String FILE_PATH = "src/test/resources/emptyFile.jpg";
     static private int uploadEmpty;
 
     @BeforeAll
@@ -18,20 +18,20 @@ public class UploadEmptyFileJpg extends BaseTest {
     @Test
     @Order(1)
     void UploadEmptyFileTest(){
-        Response response =
+        ImageDataResponse response =
         given()
-                .multiPart("image", new File(FILE_PATH))
-                .header("Authorization", token)
+                .multiPart("image", new File(ImagePaths.IMAGE_EMPTY))
+                .spec(requestSpecification)
                 .when()
-                .post("https://api.imgur.com/3/image")
+                .post(Endpoints.POST_IMAGE_REQUEST)
                 .prettyPeek()
                 .then()
-                .statusCode(400)
-                .contentType(ContentType.JSON)
+                .spec(responseSpecification400)
                 .extract()
-                .response();
+                .body()
+                .as(ImageDataResponse.class);
 
-        uploadEmpty= response.jsonPath().getInt("data.error.code");
+        Assertions.assertEquals(1003, response.data.error.code);
 
     }
 

@@ -1,16 +1,13 @@
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import org.atiuleneva.dto.ImageDataResponse;
+import org.atiuleneva.utils.*;
 import org.junit.jupiter.api.*;
+
 import java.io.File;
-import java.util.regex.Pattern;
 
 import static io.restassured.RestAssured.given;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UploadPngFileTests extends BaseTest {
-    static final String FILE_PATH = "src/test/resources/baby-yoda-baby-yoda-the-mandalorian-mandalorian-green-cute-s.png";
-    static String imgName = "Baby Yoda";
-    static String imgDesc = "The Mandalorian";
     static private String uploadedImageId;
     static private String uploadedImageDeleteHash;
     static private String uploadedImageName;
@@ -24,70 +21,69 @@ public class UploadPngFileTests extends BaseTest {
     @Order(1)
     void UploadPngFileTest(){
 
-        Response response =
+        ImageDataResponse response =
                 given()
-                        .multiPart("image", new File(FILE_PATH))
-                        .multiPart("name", imgName)
-                        .multiPart("description", imgDesc)
-                        .header("Authorization", token)
+                        .multiPart("image", new File(ImagePaths.IMAGE_PNG_FILE))
+                        .multiPart("name", TestStrings.IMAGE_NAME)
+                        .multiPart("description", TestStrings.IMAGE_DESCRIPTION)
+                        .spec(requestSpecification)
                         .when()
-                        .post("https://api.imgur.com/3/image")
+                        .post(Endpoints.POST_IMAGE_REQUEST)
                         .prettyPeek()
                         .then()
-                        .statusCode(200)
-                        .contentType(ContentType.JSON)
+                        .spec(responseSpecification)
                         .extract()
-                        .response();
+                        .body()
+                        .as(ImageDataResponse.class);
 
-        uploadedImageId = response.jsonPath().getString("data.id");
-        uploadedImageDeleteHash = response.jsonPath().getString("data.deletehash");
-        uploadedImageName = response.jsonPath().getString("data.name");
-        uploadedImageDescription = response.jsonPath().getString("data.description");
+        uploadedImageId = response.data.id;
+        uploadedImageDeleteHash = response.data.deletehash;
+        uploadedImageName = response.data.name;
+        uploadedImageDescription = response.data.description;
     }
 
     @Test
     @Order(2)
     void ImageIdFormatTest() {
-        Assertions.assertTrue(
-                Pattern.compile("^[a-zA-Z0-9]{7}$").matcher(uploadedImageId).matches());
+        Assertions.assertTrue(RegExpSet.ImageHash.matcher(uploadedImageId).matches());
     }
 
     @Test
     @Order(3)
     void ImageDeleteHashFormatTest() {
-        Assertions.assertTrue(
-                Pattern.compile("^[a-zA-Z0-9]{15}$").matcher(uploadedImageDeleteHash).matches());
+        Assertions.assertTrue(RegExpSet.ImageDeleteHash.matcher(uploadedImageDeleteHash).matches());
     }
 
     @Test
     @Order(4)
     void ImageNameTest() {
-        Assertions.assertEquals(imgName, uploadedImageName);
+        Assertions.assertEquals(TestStrings.IMAGE_NAME, uploadedImageName);
     }
 
     @Test
     @Order(5)
     void ImageDescriptionTest() {
-        Assertions.assertEquals(imgDesc, uploadedImageDescription);
+        Assertions.assertEquals(TestStrings.IMAGE_DESCRIPTION, uploadedImageDescription);
     }
 
     @Test
     @Order(6)
     void GetImageTest(){
-        Response response =
+        ImageDataResponse response =
                 given()
                         .headers(headers)
-                        .header("Authorization", token)
+                        .spec(requestSpecification)
                         .when()
-                        .get("https://api.imgur.com/3/image/{imageId}", uploadedImageId)
+                        .get(Endpoints.GET_IMAGE_REQUEST, uploadedImageId)
                         .prettyPeek()
                         .then()
-                        .statusCode(200)
+                        .spec(responseSpecification)
                         .extract()
-                        .response();
+                        .body()
+                        .as(ImageDataResponse.class);
 
-        String link = response.jsonPath().getString("data.link");
-        Assertions.assertEquals("https://i.imgur.com/" + uploadedImageId + ".png", link);
+        String link = response.data.link;
+        Assertions.assertEquals(Endpoints.LINK_IMAGE_URI_BASE + uploadedImageId + FileFormats.IMAGE_PNG, link);
 
     }
 
@@ -95,11 +91,11 @@ public class UploadPngFileTests extends BaseTest {
     static void tearDown()  {
         given()
                 .headers(headers)
-                .header("Authorization", token)
+                .spec(requestSpecification)
                 .when()
-                .delete("https://api.imgur.com/3/image/{imageDeleteHash}", uploadedImageDeleteHash)
+                .delete(Endpoints.DELETE_IMAGE_REQUEST, uploadedImageDeleteHash)
                 .prettyPeek()
                 .then()
-                .statusCode(200);
+                .spec(responseSpecification);
     }
 }

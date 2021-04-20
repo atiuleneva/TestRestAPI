@@ -1,6 +1,8 @@
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.*;
+import org.atiuleneva.utils.Endpoints;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 
@@ -16,13 +18,12 @@ public class UploadNull extends BaseTest{
         Response response =
                 given()
                         .multiPart("image", "")
-                        .header("Authorization", token)
+                        .spec(requestSpecification)
                         .when()
-                        .post("https://api.imgur.com/3/image")
+                        .post(Endpoints.POST_IMAGE_REQUEST)
                         .prettyPeek()
                         .then()
-                        .statusCode(400)
-                        .contentType(ContentType.JSON)
+                        .spec(responseSpecification400)
                         .extract()
                         .response();
 
