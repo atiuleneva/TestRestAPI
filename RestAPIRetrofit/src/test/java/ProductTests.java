@@ -1,6 +1,11 @@
 import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
+import org.atiuleneva.db.dao.CategoriesMapper;
+import org.atiuleneva.db.dao.ProductsMapper;
+import org.atiuleneva.db.model.Categories;
+import org.atiuleneva.db.model.Products;
+import org.atiuleneva.utils.DbUtils;
 import org.atiuleneva.utils.TestDataSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,6 +30,8 @@ public class ProductTests {
     Long productId;
     Faker faker = new Faker();
     static ProductService productService;
+    static ProductsMapper productsMapper;
+    static CategoriesMapper categoriesMapper;
     Product product;
 
     @SneakyThrows
@@ -32,6 +39,8 @@ public class ProductTests {
     static void beforeAll() throws MalformedURLException {
         productService = RetrofitUtils.getRetrofit()
                 .create(ProductService.class);
+        productsMapper = DbUtils.getProductsMapper();
+        categoriesMapper = DbUtils.getCategoriesMapper();
     }
 
     @BeforeEach
@@ -48,12 +57,15 @@ public class ProductTests {
         Response<Product> response =
                 productService.getProduct(TestDataSet.PRODUCT_SUGAR_ID)
                         .execute();
-
         Product product = response.body();
+
+        Products dbProduct = productsMapper.selectByPrimaryKey(TestDataSet.PRODUCT_SUGAR_ID);
+        Categories dbCategory = categoriesMapper.selectByPrimaryKey(dbProduct.getCategory_id().intValue());
+
         assertThat(response.isSuccessful()).isTrue();
-        assertThat(product.getId()).isEqualTo(TestDataSet.PRODUCT_SUGAR_ID);
-        assertThat(product.getTitle()).isEqualTo(TestDataSet.PRODUCT_SUGAR_TITLE);
-        assertThat(product.getCategoryTitle()).isEqualTo(TestDataSet.PRODUCT_SUGAR_TYPE.title);
+        assertThat(product.getId()).isEqualTo(dbProduct.getId());
+        assertThat(product.getTitle()).isEqualTo(dbProduct.getTitle());
+        assertThat(product.getCategoryTitle()).isEqualTo(dbCategory.getTitle());
     }
 
     @SneakyThrows
@@ -68,13 +80,16 @@ public class ProductTests {
         // тест
         Response<Product> getResponse = productService.getProduct(productId)
                 .execute();
-
         Product gotProduct = getResponse.body();
+
+        Products dbProduct = productsMapper.selectByPrimaryKey(productId);
+        Categories dbCategory = categoriesMapper.selectByPrimaryKey(dbProduct.getCategory_id().intValue());
+
         assertThat(getResponse.isSuccessful()).isTrue();
-        assertThat(gotProduct.getId()).isEqualTo(productId);
-        assertThat(gotProduct.getTitle()).isEqualTo(product.getTitle());
-        assertThat(gotProduct.getCategoryTitle()).isEqualTo(product.getCategoryTitle());
-        assertThat(gotProduct.getPrice()).isEqualTo(product.getPrice());
+        assertThat(gotProduct.getId()).isEqualTo(dbProduct.getId());
+        assertThat(gotProduct.getTitle()).isEqualTo(dbProduct.getTitle());
+        assertThat(gotProduct.getCategoryTitle()).isEqualTo(dbCategory.getTitle());
+        assertThat(gotProduct.getPrice()).isEqualTo(dbProduct.getPrice());
     }
 
     @SneakyThrows
@@ -222,13 +237,17 @@ public class ProductTests {
         Response<Product> response = productService.putProduct(banana)
                 .execute();
 
+        Products dbProduct = productsMapper.selectByPrimaryKey(TestDataSet.PRODUCT_BANANAMAMA_ID);
+        Categories dbCategory = categoriesMapper.selectByPrimaryKey(dbProduct.getCategory_id().intValue());
+
+
         Product changedProduct = response.body();
         assertThat(response.code()).isEqualTo(200);
         assertThat(response.isSuccessful()).isTrue();
-        assertThat(changedProduct.getId()).isEqualTo(TestDataSet.PRODUCT_BANANAMAMA_ID);
-        assertThat(changedProduct.getTitle()).isEqualTo(TestDataSet.PRODUCT_BANANAMAMA_TITLE);
-        assertThat(changedProduct.getCategoryTitle()).isEqualTo(TestDataSet.PRODUCT_BANANAMAMA_TYPE.title);
-        assertThat(changedProduct.getPrice()).isEqualTo(banana.getPrice());
+        assertThat(changedProduct.getId()).isEqualTo(dbProduct.getId());
+        assertThat(changedProduct.getTitle()).isEqualTo(dbProduct.getTitle());
+        assertThat(changedProduct.getCategoryTitle()).isEqualTo(dbCategory.getTitle());
+        assertThat(changedProduct.getPrice()).isEqualTo(dbProduct.getPrice());
 
     }
 ///Цена = 0
@@ -378,17 +397,19 @@ public class ProductTests {
         assertThat(deleteResponse.isSuccessful()).isTrue();
 
         ///Проверяем, что продукт удален
+        Products dbProduct = productsMapper.selectByPrimaryKey(productId);
+        assertThat(dbProduct).isEqualTo(null);
 
-        Response<Product> getResponse = productService.getProduct(productId)
-                .execute();
-
-        assertThat(getResponse.code()).isEqualTo(404);
-        if (getResponse != null && !getResponse.isSuccessful() && getResponse.errorBody() != null) {
-            ResponseBody body = getResponse.errorBody();
-            Converter<ResponseBody, ErrorBody> converter = RetrofitUtils.getRetrofit().responseBodyConverter(ErrorBody.class, new Annotation[0]);
-            ErrorBody errorBody = converter.convert(body);
-            assertThat(errorBody.getMessage()).isEqualTo("Unable to find product with id: " + productId);
-        }
+//        Response<Product> getResponse = productService.getProduct(productId)
+//                .execute();
+//
+//        assertThat(getResponse.code()).isEqualTo(404);
+//        if (getResponse != null && !getResponse.isSuccessful() && getResponse.errorBody() != null) {
+//            ResponseBody body = getResponse.errorBody();
+//            Converter<ResponseBody, ErrorBody> converter = RetrofitUtils.getRetrofit().responseBodyConverter(ErrorBody.class, new Annotation[0]);
+//            ErrorBody errorBody = converter.convert(body);
+//            assertThat(errorBody.getMessage()).isEqualTo("Unable to find product with id: " + productId);
+//        }
         productId = null;
     }
 

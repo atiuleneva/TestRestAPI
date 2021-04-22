@@ -1,5 +1,9 @@
 import okhttp3.ResponseBody;
+import org.atiuleneva.db.dao.CategoriesMapper;
+import org.atiuleneva.db.dao.ProductsMapper;
+import org.atiuleneva.db.model.Categories;
 import org.atiuleneva.dto.ErrorBody;
+import org.atiuleneva.utils.DbUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import retrofit2.Converter;
@@ -19,9 +23,11 @@ import static org.atiuleneva.enums.CategoryType.FOOD;
 
 public class CategoryTests {
     static CategoryService categoryService;
+    static CategoriesMapper categoriesMapper;
 
     @BeforeAll
     static void beforeAll() throws MalformedURLException {
+        categoriesMapper = DbUtils.getCategoriesMapper();
         categoryService = RetrofitUtils.getRetrofit().create(CategoryService.class);
     }
 
@@ -30,9 +36,12 @@ public class CategoryTests {
         Response<Category> response = categoryService
                 .getCategory(FOOD.id)
                 .execute();
+
+        Categories dbFood = categoriesMapper.selectByPrimaryKey((int)FOOD.id);
+
         assertThat(response.isSuccessful()).isTrue();
-        assertThat(response.body().getId()).as("Id is not equal to 1!").isEqualTo(FOOD.id);
-        assertThat(response.body().getTitle()).isEqualTo(FOOD.title);
+        assertThat(response.body().getId()).as("Id is not equal to 1!").isEqualTo((long)dbFood.getId());
+        assertThat(response.body().getTitle()).isEqualTo(dbFood.getTitle());
     }
 
     @Test
