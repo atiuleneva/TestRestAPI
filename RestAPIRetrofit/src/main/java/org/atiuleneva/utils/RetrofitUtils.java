@@ -1,6 +1,7 @@
 package org.atiuleneva.utils;
 
 
+import io.qameta.allure.Attachment;
 import lombok.experimental.UtilityClass;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -28,4 +29,18 @@ public class RetrofitUtils {
                 .build();
     }
 
+    @Attachment(value="Request", type="text/plain")
+    public static String createRequestAttachment(String request) {
+        return request;
+    }
+
+    @Attachment(value="Response", type="text/plain")
+    public static String createResponseAttachment(String response) {
+        return response;
+    }
+
+    @Attachment(value="Json Body", type="text/plain")
+    public static String createJsonAttachment(String response) {
+        return response;
+    }
 }
