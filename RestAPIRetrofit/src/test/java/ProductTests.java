@@ -7,10 +7,9 @@ import org.atiuleneva.db.model.Categories;
 import org.atiuleneva.db.model.Products;
 import org.atiuleneva.utils.DbUtils;
 import org.atiuleneva.utils.TestDataSet;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.*;
 import org.atiuleneva.enums.CategoryType;
 import org.atiuleneva.dto.ErrorBody;
@@ -33,6 +32,7 @@ public class ProductTests {
     static ProductsMapper productsMapper;
     static CategoriesMapper categoriesMapper;
     Product product;
+    public static Logger logger = LoggerFactory.getLogger(ProductTests.class);
 
     @SneakyThrows
     @BeforeAll
@@ -52,6 +52,7 @@ public class ProductTests {
     }
 
     @SneakyThrows
+    @DisplayName("Get Sugar Product Test")
     @Test
     void getSugarProductTest() throws IOException {
         Response<Product> response =
@@ -66,9 +67,13 @@ public class ProductTests {
         assertThat(product.getId()).isEqualTo(dbProduct.getId());
         assertThat(product.getTitle()).isEqualTo(dbProduct.getTitle());
         assertThat(product.getCategoryTitle()).isEqualTo(dbCategory.getTitle());
+
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Get Just Created Product Test")
     @Test
     void getJustCreatedProductTest() throws IOException {
         // подготовка теста - создание нового продукта
@@ -90,9 +95,13 @@ public class ProductTests {
         assertThat(gotProduct.getTitle()).isEqualTo(dbProduct.getTitle());
         assertThat(gotProduct.getCategoryTitle()).isEqualTo(dbCategory.getTitle());
         assertThat(gotProduct.getPrice()).isEqualTo(dbProduct.getPrice());
+
+        RetrofitUtils.createRequestAttachment(getResponse.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(getResponse.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Create New Product Test")
     @Test
     void createNewProductTest() throws IOException {
         Response<Product> response =
@@ -103,6 +112,7 @@ public class ProductTests {
     }
 
     @SneakyThrows
+    @DisplayName("Create New Product (Negative Test)")
     @Test
     void createNewProductNegativeTest() {
         Response<Product> response =
@@ -115,10 +125,14 @@ public class ProductTests {
             Converter<ResponseBody, ErrorBody> converter = RetrofitUtils.getRetrofit().responseBodyConverter(ErrorBody.class, new Annotation[0]);
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Id must be null for new entity");
+
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Get Product Zero Id (Negative Test)")
     @Test
     void getProductZeroIdNegativeTest() throws IOException {
         Response<Product> response = productService.getProduct(0)
@@ -131,9 +145,12 @@ public class ProductTests {
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Unable to find product with id: 0");
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Get Product Minus Id (Negative Test)")
     @Test
     void getProductMinusIdNegativeTest() throws IOException {
         Response<Product> response = productService.getProduct(-2)
@@ -146,8 +163,11 @@ public class ProductTests {
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Unable to find product with id: -2");
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
     @SneakyThrows
+    @DisplayName("Get Product MAX Id (Negative Test)")
     @Test
     void getProductMaxIdNegativeTest() throws IOException {
         Response<Product> response = productService.getProduct(Long.MAX_VALUE)
@@ -160,9 +180,12 @@ public class ProductTests {
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Unable to find product with id: 9223372036854775807");
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product Zero Id (Negative Test)")
     @Test
     void putProductZeroNegativeTest() throws IOException {
         Product zeroProduct = new Product()
@@ -181,9 +204,12 @@ public class ProductTests {
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Product with id: 0 doesn't exist");
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product MIN Id (Negative Test)")
     @Test
     void putProductMinIdNegativeTest() throws IOException {
         Product zeroProduct = new Product()
@@ -202,9 +228,12 @@ public class ProductTests {
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Product with id: -9223372036854775808 doesn't exist");
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product MAX Id (Negative Test)")
     @Test
     void putProductMaxNegativeTest() throws IOException {
         Product zeroProduct = new Product()
@@ -223,9 +252,12 @@ public class ProductTests {
             ErrorBody errorBody = converter.convert(body);
             assertThat(errorBody.getMessage()).isEqualTo("Product with id: 9223372036854775807 doesn't exist");
         }
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product Change Price Test")
     @Test
     void putProductChangePriceTest() throws IOException {
         Product banana = new Product()
@@ -249,9 +281,12 @@ public class ProductTests {
         assertThat(changedProduct.getCategoryTitle()).isEqualTo(dbCategory.getTitle());
         assertThat(changedProduct.getPrice()).isEqualTo(dbProduct.getPrice());
 
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 ///Цена = 0
     @SneakyThrows
+    @DisplayName("Put Product Zero Price (Negative Test)")
     @Test
     void putProductZeroPriceNegativeTest() throws IOException {
         Product banana = new Product()
@@ -268,10 +303,13 @@ public class ProductTests {
         assertThat(response.isSuccessful()).isTrue();
         assertThat(changedProduct.getPrice()).isEqualTo(banana.getPrice());
 
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     /// Цена = Null
     @SneakyThrows
+    @DisplayName("Put Product Null Price (Negative Test)")
     @Test
     void putProductNullPriceNegativeTest() throws IOException {
         Product banana = new Product()
@@ -288,9 +326,12 @@ public class ProductTests {
         assertThat(response.isSuccessful()).isTrue();
         assertThat(changedProduct.getPrice()).isEqualTo(banana.getPrice());
 
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product MAX Price (Negative Test)")
     @Test
     void putProductMAXPriceNegativeTest() throws IOException {
         Product banana = new Product()
@@ -307,8 +348,11 @@ public class ProductTests {
         assertThat(response.isSuccessful()).isTrue();
         assertThat(changedProduct.getPrice()).isEqualTo(banana.getPrice());
 
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
     @SneakyThrows
+    @DisplayName("Put Product MIN Price (Negative Test)")
     @Test
     void putProductMINPriceNegativeTest() throws IOException {
         Product banana = new Product()
@@ -325,9 +369,12 @@ public class ProductTests {
         assertThat(response.isSuccessful()).isTrue();
         assertThat(changedProduct.getPrice()).isEqualTo(banana.getPrice());
 
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product Text Price (Negative Test)")
     @Test
     void putProductTextPriceNegativeTest() throws IOException {
         Product banana = new Product()
@@ -342,9 +389,13 @@ public class ProductTests {
         Product changedProduct = response.body();
         assertThat(response.code()).isEqualTo(400);
         assertThat(response.isSuccessful()).isFalse();
+
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product Fractional Price Test")
     @Test
     void putProductFractionalPriceTest() throws IOException {
         Product banana = new Product()
@@ -360,9 +411,13 @@ public class ProductTests {
         assertThat(response.code()).isEqualTo(200);
         assertThat(response.isSuccessful()).isTrue();
         assertThat(changedProduct.getPrice()).isEqualTo(banana.getPrice());
+
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
 
     @SneakyThrows
+    @DisplayName("Put Product Huge Title (Negative Test)")
     @Test
     void putProductHugeTitleNegativeTest() throws IOException {
         Product banana = new Product()
@@ -377,9 +432,13 @@ public class ProductTests {
         Product changedProduct = response.body();
         assertThat(response.code()).isEqualTo(400);
         assertThat(response.isSuccessful()).isFalse();
+
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
     }
     ///Удаление продукта
     @SneakyThrows
+    @DisplayName("Delete Product (Positive Test)")
     @Test
     void deleteProductPositiveTest() throws IOException {
         //product.setId(0);
@@ -399,6 +458,9 @@ public class ProductTests {
         ///Проверяем, что продукт удален
         Products dbProduct = productsMapper.selectByPrimaryKey(productId);
         assertThat(dbProduct).isEqualTo(null);
+
+        RetrofitUtils.createRequestAttachment(response.raw().request().toString());
+        RetrofitUtils.createResponseAttachment(response.raw().toString());
 
 //        Response<Product> getResponse = productService.getProduct(productId)
 //                .execute();

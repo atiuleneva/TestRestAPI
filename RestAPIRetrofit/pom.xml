@@ -65,7 +65,8 @@
                     <execution>
                         <id>Generate MyBatis Artifacts</id>
                         <goals>
-                            <goal>generate</goal>
+<!--                            disabled generation mybatis db provider-->
+<!--                            <goal>generate</goal>-->
                         </goals>
                     </execution>
                 </executions>
@@ -153,6 +154,23 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>3.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber-jvm</artifactId>
+            <version>2.13.2</version>
         </dependency>
 
 
